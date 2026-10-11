@@ -14,6 +14,10 @@ export async function extractExeIcon(file) {
   const fd = new FormData()
   fd.append('file', file)
   const r = await fetch('/api/exe-icon', { method: 'POST', body: fd })
-  if (!r.ok) throw new Error('icon extraction failed')
+  if (!r.ok) {
+    let msg = 'icon extraction failed'
+    try { msg = (await r.json()).error || msg } catch {}
+    throw new Error(msg)
+  }
   return r.json()
 }

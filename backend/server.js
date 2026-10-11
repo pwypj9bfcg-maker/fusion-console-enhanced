@@ -68,7 +68,15 @@ app.get('/api/store/featured', async (_req, res) => {
 })
 
 // --- EXE icon extraction (transient: nothing is persisted server-side) ---
-app.post('/api/exe-icon', upload.single('file'), (req, res) => {
+const exeUpload = (req, res, next) => {
+  upload.single('file')(req, res, err => {
+    if (!err) return next()
+    const tooBig = err.code === 'LIMIT_FILE_SIZE'
+    res.status(tooBig ? 413 : 400).json({ error: tooBig ? 'file too large (max 128 MB)' : 'upload failed' })
+  })
+}
+
+app.post('/api/exe-icon', exeUpload, (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'no file' })
   const name = req.file.originalname.replace(/\.exe$/i, '')
   try {

@@ -122,8 +122,10 @@ export default function App() {
       const tile = { id: uid(), name: label, icon: icon || fallbackIcon(label), kind: 'exe' }
       setProfile(p => ({ ...p, tiles: [tile, ...p.tiles] }))
       notify(label + (icon ? ' imported with its icon' : ' imported'))
-    } catch {
-      notify('Could not read that EXE')
+    } catch (err) {
+      notify(err && err.message === 'file too large (max 128 MB)'
+        ? 'That EXE is too large — the limit is 128 MB'
+        : 'Could not read that EXE')
     }
   }
 
